@@ -1,0 +1,25 @@
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables and secrets
+.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# dbt generated files
+target/
+dbt_packages/
+logs/
+
+# Log files
+*.log
+
+# Editor settings
+.vscode/
