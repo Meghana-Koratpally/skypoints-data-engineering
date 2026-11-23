@@ -1,0 +1,3 @@
+Member_Name,Member_Id,Enrollment_Date,DOB,validation_errors,is_valid
+,223458,20101012,03051985,Member_Name is mandatory; ,False
+Nora,,20201312,03051985,Member_Id is mandatory; Invalid Enrollment_Date; ,False
