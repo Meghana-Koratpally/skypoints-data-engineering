@@ -163,3 +163,19 @@ def save_quarantine(invalid_records):
     )
 
     print("Invalid records saved to:", output_file)
+
+def generate_quality_report(total, valid, invalid):
+
+    report = {
+        "total_records": total,
+        "valid_records": len(valid),
+        "invalid_records": len(invalid)
+    }
+
+    print("\nDATA QUALITY REPORT")
+    print("-------------------")
+
+    for metric, count in report.items():
+        print(f"{metric}: {count}")
+
+    return report
