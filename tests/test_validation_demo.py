@@ -54,7 +54,7 @@ print(invalid_records)
 # Step 5: Save invalid records in quarantine
 save_quarantine(invalid_records)
 
-# Generate data-quality summary
+# Step 6: Generate data-quality summary
 generate_quality_report(
     len(sample_data),
     valid_records,
