@@ -1,0 +1,25 @@
+
+version: 2
+
+sources:
+  - name: skypoints_bronze
+    description: "Raw data ingested into Snowflake Bronze through Azure Data Factory"
+
+    database: SKYPOINTS_DB
+    schema: BRONZE
+
+    tables:
+      - name: USA_MEMBERS
+        description: "Raw USA loyalty member records"
+
+      - name: IND_MEMBERS
+        description: "Raw India loyalty member records"
+
+      - name: AUS_MEMBERS
+        description: "Raw Australia loyalty member records"
+
+      - name: MEMBER_PROFILES_TXT
+        description: "Raw member profile records loaded from TXT files"
+
+      - name: REDEMPTIONS_JSON
+        description: "Raw redemption records loaded from JSON files"

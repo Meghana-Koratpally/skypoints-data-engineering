@@ -1,0 +1,94 @@
+
+{{ config(
+    materialized='table',
+    schema='SILVER'
+) }}
+WITH AUS_MEMBERS AS (
+
+    SELECT
+        TO_VARCHAR(UNIQUE_ID) AS MEMBER_ID,
+        TRIM(MEMBER_NAME) AS MEMBER_NAME,
+        TRIM(TIER_TYPE) AS TIER_CODE,
+
+        COALESCE(
+            TRY_TO_DATE(DATE_OF_BIRTH, 'YYYY-MM-DD'),
+            TRY_TO_DATE(DATE_OF_BIRTH)
+        ) AS DATE_OF_BIRTH,
+
+        COALESCE(
+            TRY_TO_DATE(DATE_OF_ENROLLMENT, 'YYYY-MM-DD'),
+            TRY_TO_DATE(DATE_OF_ENROLLMENT)
+        ) AS ENROLLMENT_DATE,
+
+        COALESCE(
+            TRY_TO_DATE(DATE_OF_FLIGHT, 'YYYY-MM-DD'),
+            TRY_TO_DATE(DATE_OF_FLIGHT)
+        ) AS FLIGHT_DATE,
+
+        CAST(NULL AS VARCHAR) AS MEMBER_TYPE,
+
+        'AUS' AS COUNTRY,
+        SOURCE_FILE,
+        LOAD_TIMESTAMP
+
+    FROM {{ source('skypoints_bronze', 'AUS_MEMBERS') }}
+),
+
+IND_MEMBERS AS (
+
+    SELECT
+        TO_VARCHAR(ID) AS MEMBER_ID,
+        TRIM(NAME) AS MEMBER_NAME,
+        TRIM(TIERCODE) AS TIER_CODE,
+
+        TRY_TO_DATE(TRIM(DOB), 'DD-MM-YYYY')
+            AS DATE_OF_BIRTH,
+
+        TRY_TO_DATE(TRIM(ENROLLMENTDATE), 'DD-MM-YYYY')
+            AS ENROLLMENT_DATE,
+
+        TRY_TO_DATE(TRIM(FLIGHTDATE), 'DD-MM-YYYY')
+            AS FLIGHT_DATE,
+
+        TRIM(INDIVIDUAL_OR_CORPORATE) AS MEMBER_TYPE,
+
+        'IND' AS COUNTRY,
+        SOURCE_FILE,
+        LOAD_TIMESTAMP
+
+    FROM {{ source('skypoints_bronze', 'IND_MEMBERS') }}
+),
+
+USA_MEMBERS AS (
+
+    SELECT
+        TO_VARCHAR(ID) AS MEMBER_ID,
+        TRIM(NAME) AS MEMBER_NAME,
+        TRIM(TIERCODE) AS TIER_CODE,
+
+        CAST(NULL AS DATE) AS DATE_OF_BIRTH,
+
+        TRY_TO_DATE(TRIM(ENROLLMENTDATE), 'MMDDYYYY')
+            AS ENROLLMENT_DATE,
+
+        TRY_TO_DATE(TRIM(FLIGHTDATE), 'MMDDYYYY')
+            AS FLIGHT_DATE,
+
+        CAST(NULL AS VARCHAR) AS MEMBER_TYPE,
+
+        'USA' AS COUNTRY,
+        SOURCE_FILE,
+        LOAD_TIMESTAMP
+
+    FROM {{ source('skypoints_bronze', 'USA_MEMBERS') }}
+)
+
+SELECT * FROM AUS_MEMBERS
+
+UNION ALL
+
+SELECT * FROM IND_MEMBERS
+
+UNION ALL
+
+SELECT * FROM USA_MEMBERS
