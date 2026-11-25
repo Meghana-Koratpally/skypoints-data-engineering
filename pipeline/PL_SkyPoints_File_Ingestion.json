@@ -1,0 +1,681 @@
+{
+	"name": "PL_SkyPoints_File_Ingestion",
+	"properties": {
+		"activities": [
+			{
+				"name": "GM_TXT_Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_MemberProfiles_TXT",
+						"type": "DatasetReference",
+						"parameters": {
+							"folderPath": "raw/txt",
+							"fileName": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "GM_JSON_Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_Redemptions_JSON",
+						"type": "DatasetReference",
+						"parameters": {
+							"folderPath": "raw/json",
+							"fileName": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "JsonReadSettings"
+					}
+				}
+			},
+			{
+				"name": "GM_CSV_Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "DS_CountrySamples_CSV",
+						"type": "DatasetReference",
+						"parameters": {
+							"folderPath": "raw/csv",
+							"fileName": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "FE_Process_TXT_Files",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GM_TXT_Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GM_TXT_Files').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If Condition",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(length(activity('GM_TXT_Files').output.childItems),0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SV_No_CSV_Files",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "No CSV files found"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "SV_CSV_Files_Available",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "CSV files are available"
+										}
+									},
+									{
+										"name": "CP_Txt_Files",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "SV_CSV_Files_Available",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_MemberProfiles_TXT",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": "raw/txt",
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_MemberProfiles_TXT",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": "processed/txt",
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "SV_Capture_Copy_Error",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "CP_Txt_Files",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varErrorMessage",
+											"value": {
+												"value": "@activity('CP_Txt_Files').error",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "FL_Copy_Failed",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "SV_Capture_Copy_Error",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@variables('varErrorMessage')",
+												"type": "Expression"
+											},
+											"errorCode": "FILE_COPY_FAILED"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "FE_Process_Json_Files",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GM_JSON_Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GM_JSON_Files').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(length(activity('GM_JSON_Files').output.childItems),0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SV_No_CSV_Files1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "No CSV files found"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "SV_CSV_Files_Available1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "CSV Files are available"
+										}
+									},
+									{
+										"name": "CP_Json_Files",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "SV_CSV_Files_Available1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "JsonSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "JsonReadSettings"
+												}
+											},
+											"sink": {
+												"type": "JsonSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "JsonWriteSettings"
+												}
+											},
+											"enableStaging": false
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_Redemptions_JSON",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": "raw/json",
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_Redemptions_JSON",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": "processed/json",
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "SV_Capture_Copy_Error1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "CP_Json_Files",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varErrorMessage",
+											"value": {
+												"value": "@activity('CP_Json_Files').error",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "FL_Copy_Failed1",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "SV_Capture_Copy_Error1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@variables('varErrorMessage')",
+												"type": "Expression"
+											},
+											"errorCode": "FILE_COPY_FAILED"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "FE_Processed_CSV_Files",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GM_CSV_Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GM_CSV_Files').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If Condition2",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(length(activity('GM_CSV_Files').output.childItems),0)",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "SV_No_CSV_Files2",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "No CSV Files Found"
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "SV_CSV_Files_Available2",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varPipelineStatus",
+											"value": "CSV Files are available"
+										}
+									},
+									{
+										"name": "CP_CSV_Files",
+										"type": "Copy",
+										"dependsOn": [
+											{
+												"activity": "SV_CSV_Files_Available2",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.12:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "DelimitedTextSource",
+												"storeSettings": {
+													"type": "AzureBlobFSReadSettings",
+													"recursive": true,
+													"enablePartitionDiscovery": false
+												},
+												"formatSettings": {
+													"type": "DelimitedTextReadSettings"
+												}
+											},
+											"sink": {
+												"type": "DelimitedTextSink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												},
+												"formatSettings": {
+													"type": "DelimitedTextWriteSettings",
+													"quoteAllText": true,
+													"fileExtension": ".txt"
+												}
+											},
+											"enableStaging": false,
+											"translator": {
+												"type": "TabularTranslator",
+												"typeConversion": true,
+												"typeConversionSettings": {
+													"allowDataTruncation": true,
+													"treatBooleanAsNumber": false
+												}
+											}
+										},
+										"inputs": [
+											{
+												"referenceName": "DS_CountrySamples_CSV",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": "raw/csv",
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DS_CountrySamples_CSV",
+												"type": "DatasetReference",
+												"parameters": {
+													"folderPath": {
+														"value": "processed/csv",
+														"type": "Expression"
+													},
+													"fileName": {
+														"value": "@item().name",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									},
+									{
+										"name": "SV_Capture_Copy_Error2",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "CP_CSV_Files",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "varErrorMessage",
+											"value": {
+												"value": "@activity('CP_CSV_Files').error.message",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "FL_Copy_Failed2",
+										"type": "Fail",
+										"dependsOn": [
+											{
+												"activity": "SV_Capture_Copy_Error2",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"message": {
+												"value": "@variables('varErrorMessage')",
+												"type": "Expression"
+											},
+											"errorCode": "FILE_COPY_FAILED"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"varPipelineStatus": {
+				"type": "String",
+				"defaultValue": "Started"
+			},
+			"varErrorMessage": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-11-24T19:02:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

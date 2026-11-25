@@ -1,0 +1,16 @@
+{
+	"name": "adf-skypoints-dev",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true,
+			"isExplicitlySet": false
+		}
+	},
+	"location": "southindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "2eb658bc-f3fa-4f5a-8c0a-7dfe65bc67ec",
+		"tenantId": "2e485b44-768c-4df7-a115-073e3aa4298e"
+	}
+}

@@ -1,0 +1,68 @@
+{
+	"name": "DS_Redemptions_JSON",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_Skypoints",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"folderPath": {
+				"type": "string"
+			},
+			"fileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().fileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().folderPath",
+					"type": "Expression"
+				},
+				"fileSystem": "skypoints"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"member_id": {
+					"type": "string"
+				},
+				"feed_date": {
+					"type": "string"
+				},
+				"redemptions": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"txn_id": {
+								"type": "string"
+							},
+							"txn_date": {
+								"type": "string"
+							},
+							"partner": {
+								"type": "string"
+							},
+							"miles_redeemed": {
+								"type": "integer"
+							},
+							"status": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,515 @@
+{
+	"name": "PL_SkyPoints_Bronze_Ingestion",
+	"properties": {
+		"activities": [
+			{
+				"name": "SCR_Load_USA",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "COPY INTO SKYPOINTS_DB.BRONZE.USA_MEMBERS\n(\n    ID,\n    NAME,\n    TIERCODE,\n    ENROLLMENTDATE,\n    FLIGHTDATE,\n    SOURCE_FILE,\n    LOAD_TIMESTAMP\n)\nFROM\n(\n    SELECT\n        $1,\n        $2,\n        $3,\n        $4,\n        $5,\n        METADATA$FILENAME,\n        CURRENT_TIMESTAMP()\n    FROM @SKYPOINTS_DB.BRONZE.STG_CSV\n)\nFILES = ('USA.csv')\nFILE_FORMAT = (\n    FORMAT_NAME = 'SKYPOINTS_DB.BRONZE.FF_CSV'\n)\nON_ERROR = 'ABORT_STATEMENT';"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_IND",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "COPY INTO SKYPOINTS_DB.BRONZE.IND_MEMBERS\n(\n    ID,\n    NAME,\n    DOB,\n    TIERCODE,\n    ENROLLMENTDATE,\n    INDIVIDUAL_OR_CORPORATE,\n    FLIGHTDATE,\n    SOURCE_FILE,\n    LOAD_TIMESTAMP\n)\nFROM\n(\n    SELECT\n        $1,\n        $2,\n        $3,\n        $4,\n        $5,\n        $6,\n        $7,\n        METADATA$FILENAME,\n        CURRENT_TIMESTAMP()\n    FROM @SKYPOINTS_DB.BRONZE.STG_CSV\n)\nFILES = ('IND.csv')\nFILE_FORMAT = (\n    FORMAT_NAME = 'SKYPOINTS_DB.BRONZE.FF_CSV'\n)\nON_ERROR = 'ABORT_STATEMENT';"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_AUS",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "COPY INTO SKYPOINTS_DB.BRONZE.AUS_MEMBERS\r\n(\r\n    UNIQUE_ID,\r\n    MEMBER_NAME,\r\n    TIER_TYPE,\r\n    DATE_OF_BIRTH,\r\n    DATE_OF_ENROLLMENT,\r\n    DATE_OF_FLIGHT,\r\n    SOURCE_FILE,\r\n    LOAD_TIMESTAMP\r\n)\r\nFROM\r\n(\r\n    SELECT\r\n        $1,\r\n        $2,\r\n        $3,\r\n        $4,\r\n        $5,\r\n        $6,\r\n        METADATA$FILENAME,\r\n        CURRENT_TIMESTAMP()\r\n    FROM @SKYPOINTS_DB.BRONZE.STG_CSV\r\n)\r\nFILES = ('AUS.csv')\r\nFILE_FORMAT = (\r\n    FORMAT_NAME = 'SKYPOINTS_DB.BRONZE.FF_CSV'\r\n)\r\nON_ERROR = 'ABORT_STATEMENT';"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_TXT",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "COPY INTO SKYPOINTS_DB.BRONZE.MEMBER_PROFILES_TXT\n(\n    RAW_LINE,\n    SOURCE_FILE,\n    LOAD_TIMESTAMP\n)\nFROM\n(\n    SELECT\n        $1,\n        METADATA$FILENAME,\n        CURRENT_TIMESTAMP()\n    FROM @SKYPOINTS_DB.BRONZE.STG_TXT\n)\nFILES = ('member_profiles_sample.txt')\nFILE_FORMAT = (\n    FORMAT_NAME = 'SKYPOINTS_DB.BRONZE.FF_TXT'\n)\nON_ERROR = 'ABORT_STATEMENT';"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_JSON",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": "COPY INTO SKYPOINTS_DB.BRONZE.REDEMPTIONS_JSON\r\n(\r\n    RAW_DATA,\r\n    SOURCE_FILE,\r\n    LOAD_TIMESTAMP\r\n)\r\nFROM\r\n(\r\n    SELECT\r\n        $1,\r\n        METADATA$FILENAME,\r\n        CURRENT_TIMESTAMP()\r\n    FROM @SKYPOINTS_DB.BRONZE.STG_JSON\r\n)\r\nFILES = ('redemptions_sample.json')\r\nFILE_FORMAT = (\r\n    FORMAT_NAME = 'SKYPOINTS_DB.BRONZE.FF_JSON'\r\n)\r\nON_ERROR = 'ABORT_STATEMENT';"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Log_USA_Success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_USA",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\r\n(\r\n    BATCH_ID,\r\n    SOURCE_FILE,\r\n    FILE_TYPE,\r\n    TARGET_TABLE,\r\n    STATUS,\r\n    START_TIME,\r\n    END_TIME,\r\n    ROWS_LOADED,\r\n    ERROR_MESSAGE,\r\n    ADF_PIPELINE_NAME,\r\n    ADF_RUN_ID\r\n)\r\nVALUES\r\n(\r\n    '@{pipeline().RunId}',\r\n    'USA.csv',\r\n    'CSV',\r\n    'USA_MEMBERS',\r\n    'SUCCESS',\r\n    CURRENT_TIMESTAMP(),\r\n    CURRENT_TIMESTAMP(),\r\n    NULL,\r\n    NULL,\r\n    '@{pipeline().Pipeline}',\r\n    '@{pipeline().RunId}'\r\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Log_USA_Failure",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_USA",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'USA.csv',\n    'CSV',\n    'USA_MEMBERS',\n    'FAILED',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    'USA ingestion activity failed. Check ADF activity run output for details.',\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Log_IND_Success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_IND",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'IND.csv',\n    'CSV',\n    'IND_MEMBERS',\n    'SUCCESS',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    NULL,\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Log_Failure",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_IND",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'IND.csv',\n    'CSV',\n    'IND_MEMBERS',\n    'FAILED',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    'IND ingestion activity failed. Check ADF activity run output for details.',\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_AUS_Success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_AUS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'AUS.csv',\n    'CSV',\n    'AUS_MEMBERS',\n    'SUCCESS',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    NULL,\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_AUS_Failure",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_AUS",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'AUS.csv',\n    'CSV',\n    'AUS_MEMBERS',\n    'FAILED',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    'AUS ingestion activity failed. Check ADF activity run output for details.',\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_TXT_Success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_TXT",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'member_profiles_sample.txt',\n    'TXT',\n    'MEMBER_PROFILES_TXT',\n    'SUCCESS',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    NULL,\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_TXT_Failure",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_TXT",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'member_profiles_sample.txt',\n    'TXT',\n    'MEMBER_PROFILES_TXT',\n    'FAILED',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    'TXT ingestion activity failed. Check ADF activity run output for details.',\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_Json_Success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_JSON",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'redemptions_sample.json',\n    'JSON',\n    'REDEMPTIONS_JSON',\n    'SUCCESS',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    NULL,\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			},
+			{
+				"name": "SCR_Load_Json_Failure",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "SCR_Load_JSON",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_Snowflake_SkyPoints",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "INSERT INTO SKYPOINTS_DB.CONTROL.INGESTION_LOG\n(\n    BATCH_ID,\n    SOURCE_FILE,\n    FILE_TYPE,\n    TARGET_TABLE,\n    STATUS,\n    START_TIME,\n    END_TIME,\n    ROWS_LOADED,\n    ERROR_MESSAGE,\n    ADF_PIPELINE_NAME,\n    ADF_RUN_ID\n)\nVALUES\n(\n    '@{pipeline().RunId}',\n    'redemptions_sample.json',\n    'JSON',\n    'REDEMPTIONS_JSON',\n    'FAILED',\n    CURRENT_TIMESTAMP(),\n    CURRENT_TIMESTAMP(),\n    NULL,\n    'JSON ingestion activity failed. Check ADF activity run output for details.',\n    '@{pipeline().Pipeline}',\n    '@{pipeline().RunId}'\n);\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00",
+					"treatDecimalAsString": false
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-11-25T03:37:57Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
