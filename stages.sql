@@ -1,0 +1,21 @@
+-- External stages 
+-- CSV Stage
+CREATE OR REPLACE STAGE
+SKYPOINTS_DB.BRONZE.STG_CSV
+URL = 'azure://strgskypoints.blob.core.windows.net/skypoints/raw/csv/'
+STORAGE_INTEGRATION = SKYPOINTS_AZURE_INT
+FILE_FORMAT = SKYPOINTS_DB.BRONZE.FF_CSV;
+
+-- TXT Stage
+CREATE OR REPLACE STAGE
+SKYPOINTS_DB.BRONZE.STG_TXT
+URL = 'azure://strgskypoints.blob.core.windows.net/skypoints/raw/txt/'
+STORAGE_INTEGRATION = SKYPOINTS_AZURE_INT
+FILE_FORMAT = SKYPOINTS_DB.BRONZE.FF_TXT;
+
+-- JSON Stage
+CREATE OR REPLACE STAGE
+SKYPOINTS_DB.BRONZE.STG_JSON
+URL = 'azure://strgskypoints.blob.core.windows.net/skypoints/raw/json/'
+STORAGE_INTEGRATION = SKYPOINTS_AZURE_INT
+FILE_FORMAT = SKYPOINTS_DB.BRONZE.FF_JSON;
